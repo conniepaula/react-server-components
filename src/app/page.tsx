@@ -1,38 +1,16 @@
-import {
-  ChevronRightIcon,
-  MagnifyingGlassIcon,
-} from "@heroicons/react/20/solid";
-import Link from "next/link";
+import { ChevronRightIcon } from "@heroicons/react/20/solid";
 
 import { prisma } from "@/lib/prisma";
 import SearchInput from "@/app/components/search-input";
 import NextPage from "@/app/components/next-page";
 import PreviousPage from "./components/previous-page";
 
-let users = [
-  {
-    name: "Kenneth Bell",
-    email: "kenneth.bell@example.com",
-  },
-  {
-    name: "Mattie Conway",
-    email: "mattie.conway@example.com",
-  },
-  {
-    name: "Lola B. Graham",
-    email: "lolab.graham@example.com",
-  },
-  {
-    name: "Cara Fuentes",
-    email: "cara.fuentes@example.com",
-  },
-];
-
-export default async function Users({
-  searchParams,
-}: {
+interface PageProps {
   searchParams: { [key: string]: string | string[] | undefined };
-}) {
+}
+
+export default async function Page(props: PageProps) {
+  const { searchParams } = props;
   const search =
     typeof searchParams.search === "string" ? searchParams.search : undefined;
   const usersPerPage = 7;
@@ -58,11 +36,11 @@ export default async function Users({
   });
 
   const currentSearchParams = new URLSearchParams();
-  
+
   if (search) {
     currentSearchParams.set("search", search);
   }
-  if (page > 1 ) {
+  if (page > 1) {
     currentSearchParams.set("page", `${page}`);
   }
 
@@ -139,8 +117,12 @@ export default async function Users({
           <span className="font-semibold">{numberOfUsers}</span> users
         </p>
         <div className="space-x-2">
-        <PreviousPage page={page} currentSearchParams={currentSearchParams} />
-          <NextPage page={page} lastPage={lastPage} currentSearchParams={currentSearchParams} />
+          <PreviousPage page={page} currentSearchParams={currentSearchParams} />
+          <NextPage
+            page={page}
+            lastPage={lastPage}
+            currentSearchParams={currentSearchParams}
+          />
         </div>
       </div>
     </div>
