@@ -1,5 +1,6 @@
 import Link from "next/link";
-import LinkButton from "./link-button";
+
+import LinkButton from "@/app/components/link-button";
 
 interface NextPage {
   page: number;
