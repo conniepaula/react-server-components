@@ -4,6 +4,7 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
 import Link from "next/link";
+import SearchInput from "./components/search-input";
 
 let users = [
   {
@@ -29,8 +30,9 @@ export default async function Users({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
+  const search = typeof searchParams.search === "string" ? searchParams.search : undefined;
   const usersPerPage = 6;
-  const numberOfUsers = await prisma.user.count();
+  const numberOfUsers = await prisma.user.count({where: { name: {contains: search}}});
   const lastPage = Math.ceil(numberOfUsers / usersPerPage);
   const page =
     typeof searchParams.page === "string"
@@ -46,27 +48,14 @@ export default async function Users({
   const users = await prisma.user.findMany({
     take: usersPerPage,
     skip: (page - 1) * usersPerPage,
+    where: { name: {contains: search}}
   });
 
   return (
     <div className="px-8 bg-neutral-950 pt-12 min-h-screen">
       <div className="flex items-center justify-between">
-        <div className="w-80">
-          <div className="relative mt-1 rounded-md shadow-sm">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <MagnifyingGlassIcon
-                className="h-5 w-5 text-neutral-700"
-                aria-hidden="true"
-              />
-            </div>
-            <input
-              type="text"
-              name="search"
-              id="search"
-              className="bg-neutral-900 text-neutral-200 block w-full rounded-md border-neutral-800 pl-10 focus:ring-0 focus:border-neutral-800 focus:outline-none text-sm"
-              placeholder="Search"
-            />
-          </div>
+        <div className="w-80 mt-1">
+          <SearchInput search={search}/>
         </div>
         <div className="mt-0 ml-16 flex-none">
           <button
