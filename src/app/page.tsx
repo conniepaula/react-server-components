@@ -29,16 +29,24 @@ export default async function Users({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const page = typeof searchParams.page === "string" ? +searchParams.page : 1;
-  const usersPerPage = 7;
+  const usersPerPage = 6;
+  const numberOfUsers = await prisma.user.count();
+  const lastPage = Math.ceil(numberOfUsers / usersPerPage);
+  const page =
+    typeof searchParams.page === "string"
+      ? +searchParams.page < 1
+        ? 1
+        : +searchParams.page > lastPage
+        ? lastPage
+        : +searchParams.page
+      : 1;
+  const firstUserOnPage = (page - 1) * usersPerPage + 1;
+  const lastUserOnPage = Math.min(page * usersPerPage, numberOfUsers);
+
   const users = await prisma.user.findMany({
     take: usersPerPage,
     skip: (page - 1) * usersPerPage,
   });
-  const numberOfUsers = await prisma.user.count();
-  const lastPage = Math.ceil(numberOfUsers / usersPerPage);
-  const firstUserOnPage = (page - 1) * usersPerPage + 1;
-  const lastUserOnPage = Math.min(page * usersPerPage, numberOfUsers);
 
   return (
     <div className="px-8 bg-neutral-950 pt-12 min-h-screen">
