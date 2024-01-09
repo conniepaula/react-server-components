@@ -1,8 +1,9 @@
 "use client";
+import { useState, useTransition } from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
-import { Spinner } from "./spinner";
+
+import { Spinner } from "@/app/components/spinner";
 
 interface SearchInputProps {
   search?: string;
@@ -12,6 +13,8 @@ export default function SearchInput(props: SearchInputProps) {
   const { search } = props;
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout>();
+  const isSearching = !!timeoutId || isPending;
   return (
     <div className="relative mt-1 rounded-md shadow-sm">
       <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -28,16 +31,21 @@ export default function SearchInput(props: SearchInputProps) {
         placeholder="Search"
         defaultValue={search}
         onChange={(e) => {
-          startTransition(() => {
-            if (e.target.value) {
-              router.push(`/?search=${e.target.value}`);
-            } else {
-              router.push("/");
-            }
-          });
+          clearTimeout(timeoutId);
+          const id = setTimeout(() => {
+            startTransition(() => {
+              if (e.target.value) {
+                router.push(`/?search=${e.target.value}`);
+              } else {
+                router.push("/");
+              }
+            });
+            setTimeoutId(undefined);
+          }, 500);
+          setTimeoutId(id);
         }}
       />
-      {isPending && (
+      {isSearching && (
         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pl-3 pr-2">
           <Spinner
             className="h-5 w-5 text-neutral-500 animate-spin"
