@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
 
 import { prisma } from "@/lib/prisma";
 import SearchInput from "@/app/components/search-input";
 import NextPage from "@/app/components/next-page";
-import PreviousPage from "./components/previous-page";
+import PreviousPage from "@/app/components/previous-page";
+import { Spinner } from "@/app/components/spinner";
 
 interface PageProps {
   searchParams: { [key: string]: string | string[] | undefined };
@@ -11,6 +13,37 @@ interface PageProps {
 
 export default async function Page(props: PageProps) {
   const { searchParams } = props;
+  const search =
+    typeof searchParams.search === "string" ? searchParams.search : undefined;
+
+  return (
+    <div className="flex flex-col px-8 bg-neutral-950 pt-12 min-h-screen">
+      <div className="flex items-center justify-between">
+        <div className="w-80 mt-1">
+          <SearchInput search={search} />
+        </div>
+        <div className="mt-0 ml-16 flex-none">
+          <button
+            type="button"
+            className="block rounded-md bg-violet-600 py-1.5 px-3 text-center text-sm font-semibold leading-6 text-neutral-100 shadow-sm hover:bg-violet-500 hover:transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600"
+          >
+            Add user
+          </button>
+        </div>
+      </div>
+      <Suspense fallback={<Loading />}>
+        {/* @ts-expect-error Server Component */}
+        <UsersTable searchParams={searchParams} />
+      </Suspense>
+    </div>
+  );
+}
+
+async function UsersTable(props: PageProps) {
+  const { searchParams } = props;
+
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+
   const search =
     typeof searchParams.search === "string" ? searchParams.search : undefined;
   const usersPerPage = 7;
@@ -45,20 +78,7 @@ export default async function Page(props: PageProps) {
   }
 
   return (
-    <div className="px-8 bg-neutral-950 pt-12 min-h-screen">
-      <div className="flex items-center justify-between">
-        <div className="w-80 mt-1">
-          <SearchInput search={search} />
-        </div>
-        <div className="mt-0 ml-16 flex-none">
-          <button
-            type="button"
-            className="block rounded-md bg-violet-600 py-1.5 px-3 text-center text-sm font-semibold leading-6 text-neutral-100 shadow-sm hover:bg-violet-500 hover:transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600"
-          >
-            Add user
-          </button>
-        </div>
-      </div>
+    <div>
       <div className="mt-8 flow-root">
         <div className="-my-2 -mx-6">
           <div className="inline-block min-w-full py-2 align-middle px-6">
@@ -93,7 +113,7 @@ export default async function Page(props: PageProps) {
                       <td className="whitespace-nowrap px-3 py-4 text-sm text-neutral-500">
                         {user.email.toLowerCase()}
                       </td>
-                      <td className=" whitespace-nowrap py-4 pl-4 pr-6 text-right text-sm font-medium">
+                      <td className="whitespace-nowrap py-4 pl-4 pr-6 text-right text-sm font-medium">
                         <a
                           href="#"
                           className="text-violet-400 hover:text-violet-400 inline-flex items-center"
@@ -125,6 +145,14 @@ export default async function Page(props: PageProps) {
           />
         </div>
       </div>
+    </div>
+  );
+}
+
+function Loading() {
+  return (
+    <div className=" flex h-full grow bg-neutral-950 items-center justify-center">
+      <Spinner className="mt-16 w-12 animate-spin text-violet-400" />
     </div>
   );
 }

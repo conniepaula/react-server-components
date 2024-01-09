@@ -1,6 +1,8 @@
 "use client";
 import { MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { Spinner } from "./spinner";
 
 interface SearchInputProps {
   search?: string;
@@ -9,6 +11,7 @@ interface SearchInputProps {
 export default function SearchInput(props: SearchInputProps) {
   const { search } = props;
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   return (
     <div className="relative mt-1 rounded-md shadow-sm">
       <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -25,9 +28,23 @@ export default function SearchInput(props: SearchInputProps) {
         placeholder="Search"
         defaultValue={search}
         onChange={(e) => {
-          router.push(`/?search=${e.target.value}`);
+          startTransition(() => {
+            if (e.target.value) {
+              router.push(`/?search=${e.target.value}`);
+            } else {
+              router.push("/");
+            }
+          });
         }}
       />
+      {isPending && (
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pl-3 pr-2">
+          <Spinner
+            className="h-5 w-5 text-neutral-500 animate-spin"
+            aria-hidden="true"
+          />
+        </div>
+      )}
     </div>
   );
 }
