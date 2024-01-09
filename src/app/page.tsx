@@ -1,10 +1,13 @@
-import { prisma } from "@/lib/prisma";
 import {
   ChevronRightIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
 import Link from "next/link";
-import SearchInput from "./components/search-input";
+
+import { prisma } from "@/lib/prisma";
+import SearchInput from "@/app/components/search-input";
+import NextPage from "@/app/components/next-page";
+import PreviousPage from "./components/previous-page";
 
 let users = [
   {
@@ -30,9 +33,12 @@ export default async function Users({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const search = typeof searchParams.search === "string" ? searchParams.search : undefined;
-  const usersPerPage = 6;
-  const numberOfUsers = await prisma.user.count({where: { name: {contains: search}}});
+  const search =
+    typeof searchParams.search === "string" ? searchParams.search : undefined;
+  const usersPerPage = 7;
+  const numberOfUsers = await prisma.user.count({
+    where: { name: { contains: search } },
+  });
   const lastPage = Math.ceil(numberOfUsers / usersPerPage);
   const page =
     typeof searchParams.page === "string"
@@ -48,14 +54,23 @@ export default async function Users({
   const users = await prisma.user.findMany({
     take: usersPerPage,
     skip: (page - 1) * usersPerPage,
-    where: { name: {contains: search}}
+    where: { name: { contains: search } },
   });
+
+  const currentSearchParams = new URLSearchParams();
+  
+  if (search) {
+    currentSearchParams.set("search", search);
+  }
+  if (page > 1 ) {
+    currentSearchParams.set("page", `${page}`);
+  }
 
   return (
     <div className="px-8 bg-neutral-950 pt-12 min-h-screen">
       <div className="flex items-center justify-between">
         <div className="w-80 mt-1">
-          <SearchInput search={search}/>
+          <SearchInput search={search} />
         </div>
         <div className="mt-0 ml-16 flex-none">
           <button
@@ -124,22 +139,8 @@ export default async function Users({
           <span className="font-semibold">{numberOfUsers}</span> users
         </p>
         <div className="space-x-2">
-          <Link
-            href={page > 2 ? `/?page=${page - 1}` : "/"}
-            className={`${
-              page === 1 ? "opacity-50 pointer-events-none" : ""
-            } bg-neutral-900 font-semibold hover:transition-colors  hover:bg-neutral-800/[0.7] rounded-md border border-neutral-800/[.6] px-3 py-2 inline-flex items-center justify-center text-sm text-neutral-200`}
-          >
-            Previous
-          </Link>
-          <Link
-            href={page < lastPage ? `/?page=${page + 1}` : `/?page=${page}`}
-            className={`${
-              page === lastPage ? "opacity-50 pointer-events-none" : ""
-            } bg-neutral-900 font-semibold hover:transition-colors  hover:bg-neutral-800/[0.7] rounded-md border border-neutral-800/[.6] px-3 py-2 inline-flex items-center justify-center text-sm text-neutral-200`}
-          >
-            Next
-          </Link>
+        <PreviousPage page={page} currentSearchParams={currentSearchParams} />
+          <NextPage page={page} lastPage={lastPage} currentSearchParams={currentSearchParams} />
         </div>
       </div>
     </div>
