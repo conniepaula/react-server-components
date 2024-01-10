@@ -16,7 +16,7 @@ export default function SearchInput(props: SearchInputProps) {
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout>();
   const isSearching = !!timeoutId || isPending;
   return (
-    <div className="relative mt-1 rounded-md shadow-sm">
+    <div className="relative rounded-md shadow-sm">
       <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
         <MagnifyingGlassIcon
           className="h-5 w-5 text-neutral-700"

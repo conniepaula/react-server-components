@@ -17,12 +17,12 @@ export default async function Page(props: PageProps) {
     typeof searchParams.search === "string" ? searchParams.search : undefined;
 
   return (
-    <div className="flex flex-col px-8 bg-neutral-950 pt-12 min-h-screen">
+    <div className="flex flex-col px-4 md:px-8 bg-neutral-950 pt-4 md:pt-12 min-h-screen">
       <div className="flex items-center justify-between">
-        <div className="w-80 mt-1">
+        <div className="w-fit flex-1 md:w-80">
           <SearchInput search={search} />
         </div>
-        <div className="mt-0 ml-16 flex-none">
+        <div className="mt-0 ml-6 md:ml-16 flex-none">
           <button
             type="button"
             className="block rounded-md bg-violet-600 py-1.5 px-3 text-center text-sm font-semibold leading-6 text-neutral-100 shadow-sm hover:bg-violet-500 hover:transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-600"
@@ -42,11 +42,11 @@ export default async function Page(props: PageProps) {
 async function UsersTable(props: PageProps) {
   const { searchParams } = props;
 
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+  // await new Promise((resolve) => setTimeout(resolve, 2000));
 
   const search =
     typeof searchParams.search === "string" ? searchParams.search : undefined;
-  const usersPerPage = 7;
+  const usersPerPage = 8;
   const numberOfUsers = await prisma.user.count({
     where: { name: { contains: search } },
   });
@@ -78,10 +78,10 @@ async function UsersTable(props: PageProps) {
   }
 
   return (
-    <div>
-      <div className="mt-8 flow-root">
-        <div className="-my-2 -mx-6">
-          <div className="inline-block min-w-full py-2 align-middle px-6">
+    <div className="grow">
+      <div className="mt-3 md:mt-8 flow-root">
+        <div className="md:-my-2 md:-mx-6 overflow-x-scroll">
+          <div className="inline-block min-w-full py-2 align-middle md:px-6">
             <div className="overflow-hidden shadow ring-1 ring-neutral-700 ring-opacity-30 rounded-lg">
               <table className="min-w-full divide-y divide-neutral-800/[.4]">
                 <thead className="bg-neutral-900/[.5]">
@@ -130,13 +130,13 @@ async function UsersTable(props: PageProps) {
           </div>
         </div>
       </div>
-      <div className="mt-4 space-x-2 flex items-center justify-between">
+      <div className="mt-4 space-x-2 flex flex-col md:flex-row items-center justify-between">
         <p className="text-neutral-500 text-sm">
           Showing <span className="font-semibold">{firstUserOnPage}</span> to{" "}
           <span className="font-semibold">{lastUserOnPage}</span> of{" "}
           <span className="font-semibold">{numberOfUsers}</span> users
         </p>
-        <div className="space-x-2">
+        <div className="space-x-2 mt-3 md:mt-0">
           <PreviousPage page={page} currentSearchParams={currentSearchParams} />
           <NextPage
             page={page}
