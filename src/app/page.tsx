@@ -32,7 +32,6 @@ export default async function Page(props: PageProps) {
         </div>
       </div>
       <Suspense fallback={<Loading />}>
-        {/* @ts-expect-error Server Component */}
         <UsersTable searchParams={searchParams} />
       </Suspense>
     </div>
@@ -42,8 +41,6 @@ export default async function Page(props: PageProps) {
 async function UsersTable(props: PageProps) {
   const { searchParams } = props;
 
-  // await new Promise((resolve) => setTimeout(resolve, 2000));
-
   const search =
     typeof searchParams.search === "string" ? searchParams.search : undefined;
   const usersPerPage = 8;
@@ -52,16 +49,16 @@ async function UsersTable(props: PageProps) {
   });
   const lastPage = Math.ceil(numberOfUsers / usersPerPage);
   const page =
-    typeof searchParams.page === "string"
-      ? +searchParams.page < 1
-        ? 1
-        : +searchParams.page > lastPage
-        ? lastPage
-        : +searchParams.page
-      : 1;
+  typeof searchParams.page === "string"
+  ? +searchParams.page < 1
+  ? 1
+  : +searchParams.page > lastPage
+  ? lastPage
+  : +searchParams.page
+  : 1;
   const firstUserOnPage = (page - 1) * usersPerPage + 1;
   const lastUserOnPage = Math.min(page * usersPerPage, numberOfUsers);
-
+  
   const users = await prisma.user.findMany({
     take: usersPerPage,
     skip: (page - 1) * usersPerPage,
